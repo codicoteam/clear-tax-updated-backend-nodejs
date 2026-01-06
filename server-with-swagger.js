@@ -1,8 +1,16 @@
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
+const cors = require("cors"); // ADD THIS LINE
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // UPDATED FOR RENDER
+
+// ===== CORS MIDDLEWARE (ADD THIS) =====
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://clear-tax-updated-backend-nodejs.onrender.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 
@@ -15,7 +23,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API for taxi booking with driver profiles including: image, rating, description, name, role"
     },
-       servers: [
+    servers: [
       {
         url: "http://localhost:3000",
         description: "🚀 Local Development Server"
@@ -24,13 +32,47 @@ const swaggerOptions = {
         url: "https://clear-tax-updated-backend-nodejs.onrender.com",
         description: "🌐 Live Production Server (Render)"
       }
-    ]
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        }
+      }
+    }
   },
-  apis: ["./server-with-swagger.js"] // file containing annotations
+  apis: ["./server-with-swagger.js"]
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// ===== SWAGGER UI SETUP WITH CORS FIX =====
+const swaggerUiOptions = {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Clear Taxi Go API Documentation",
+  swaggerOptions: {
+    urls: [
+      {
+        url: '/api-docs/swagger.json',
+        name: 'Clear Taxi Go API v1'
+      }
+    ],
+    persistAuthorization: true,
+    displayRequestDuration: true
+  }
+};
+
+// Serve swagger.json file
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Serve Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 // ===== YOUR APIs WITH SWAGGER ANNOTATIONS =====
 
@@ -212,16 +254,20 @@ app.get("/api/v1/drivers/:driver_id", (req, res) => {
  */
 app.post("/api/v1/bookings", (req, res) => {
   const booking = {
-    booking_id: "BOOK-12345",
+    booking_id: "BOOK-" + Date.now(),
     service_id: req.body.service_id,
     pickup_address: req.body.pickup_address,
+    dropoff_address: req.body.dropoff_address || "Not specified",
+    payment_method_id: req.body.payment_method_id || "cash",
     driver_details: {
       name: "Michael Rodriguez",
       rating: 4.9,
-      vehicle: "Toyota Highlander"
+      vehicle: "Toyota Highlander",
+      phone: "+1-555-123-4567"
     },
     status: "confirmed",
-    estimated_arrival: "2024-01-15T14:30:00Z"
+    estimated_arrival: new Date(Date.now() + 15 * 60000).toISOString(),
+    created_at: new Date().toISOString()
   };
   res.status(201).json(booking);
 });
@@ -264,11 +310,18 @@ app.post("/api/v1/bookings", (req, res) => {
  */
 app.post("/api/v1/driver/applications", (req, res) => {
   const application = {
-    application_id: "APP-67890",
-    full_name: req.body.full_name,
-    email: req.body.email,
+    application_id: "APP-" + Date.now(),
+    applicant: {
+      full_name: req.body.full_name,
+      email: req.body.email,
+      phone_number: req.body.phone_number,
+      city: req.body.city || "Not specified",
+      vehicle_type: req.body.vehicle_type || "Not specified"
+    },
     status: "pending",
-    next_steps: ["Upload license", "Background check"]
+    submitted_at: new Date().toISOString(),
+    next_steps: ["Upload driver license", "Submit background check", "Vehicle inspection"],
+    estimated_processing: "3-5 business days"
   };
   res.status(201).json(application);
 });
@@ -277,28 +330,69 @@ app.post("/api/v1/driver/applications", (req, res) => {
 app.get("/", (req, res) => {
   res.send(`
     <html>
-      <head><title>Clear Taxi Go API</title></head>
+      <head>
+        <title>Clear Taxi Go API</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+          h1 { color: #2c3e50; }
+          .api-link { display: block; margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+          .server { margin: 20px 0; padding: 15px; background: #e8f4f8; border-radius: 5px; }
+        </style>
+      </head>
       <body>
-        <h1>��� Clear Taxi Go API</h1>
-        <p><strong>APIs are working! Now with Swagger documentation!</strong></p>
-        <p>��� <a href="/api-docs">Go to Swagger UI</a> to test all APIs interactively</p>
-        <p>Available endpoints:</p>
-        <ul>
-          <li><a href="/api/v1/services">GET /api/v1/services</a></li>
-          <li><a href="/api/v1/drivers/DRV-001">GET /api/v1/drivers/DRV-001</a></li>
-          <li>POST /api/v1/bookings (test in Swagger)</li>
-          <li>POST /api/v1/driver/applications (test in Swagger)</li>
-        </ul>
+        <h1>🚖 Clear Taxi Go API</h1>
+        <p><strong>✅ APIs are working perfectly! Now with Swagger documentation!</strong></p>
+        
+        <div class="server">
+          <h3>📚 Interactive Documentation:</h3>
+          <a class="api-link" href="/api-docs">Go to Swagger UI</a>
+        </div>
+        
+        <div class="server">
+          <h3>🌐 Available Servers:</h3>
+          <p><strong>Local:</strong> http://localhost:${PORT}</p>
+          <p><strong>Production:</strong> https://clear-tax-updated-backend-nodejs.onrender.com</p>
+        </div>
+        
+        <div class="server">
+          <h3>🔗 Test Endpoints:</h3>
+          <a class="api-link" href="/api/v1/services">GET /api/v1/services</a>
+          <a class="api-link" href="/api/v1/drivers/DRV-001">GET /api/v1/drivers/DRV-001</a>
+          <a class="api-link" href="/health">GET /health (Health Check)</a>
+        </div>
+        
+        <div class="server">
+          <h3>📞 Support:</h3>
+          <p>Swagger UI: <code>/api-docs</code></p>
+          <p>Health Check: <code>/health</code></p>
+          <p>GitHub: <code>codicoteam/clear-tax-updated-backend-nodejs</code></p>
+        </div>
       </body>
     </html>
   `);
 });
 
+// Health check endpoint
 app.get("/health", (req, res) => { 
-  res.status(200).json({ status: "healthy", service: "clear-taxi-go-api", timestamp: new Date().toISOString() }); 
+  res.status(200).json({ 
+    status: "healthy", 
+    service: "clear-taxi-go-api", 
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+    endpoints: [
+      "/api/v1/services",
+      "/api/v1/drivers/{id}",
+      "/api/v1/bookings",
+      "/api/v1/driver/applications"
+    ]
+  }); 
 });
+
+// Start server
 app.listen(PORT, () => {
   console.log("✅ SERVER WITH SWAGGER STARTED!");
-  console.log(`��� Swagger Docs: http://localhost:${PORT}/api-docs`);
-  console.log(`��� Homepage: http://localhost:${PORT}`);
+  console.log(`📚 Swagger Docs: http://localhost:${PORT}/api-docs`);
+  console.log(`🌐 Homepage: http://localhost:${PORT}`);
+  console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
+  console.log(`🚀 Ready for production: https://clear-tax-updated-backend-nodejs.onrender.com`);
 });
