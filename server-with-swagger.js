@@ -15,7 +15,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API for taxi booking with driver profiles including: image, rating, description, name, role"
     },
-    servers: [
+       servers: [
       {
         url: "http://localhost:3000",
         description: "🚀 Local Development Server"
