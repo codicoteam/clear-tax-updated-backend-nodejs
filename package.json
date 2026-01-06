@@ -1,0 +1,20 @@
+{
+  "name": "clear-taxi-go",
+  "version": "1.0.0",
+  "description": "Clear Taxi Go API with Swagger",
+  "main": "server-with-swagger.js",
+  "scripts": {
+    "start": "node server-with-swagger.js",
+    "dev": "nodemon server-with-swagger.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "swagger-ui-express": "^4.6.3",
+    "swagger-jsdoc": "^6.2.8",
+    "yamljs": "^0.3.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
