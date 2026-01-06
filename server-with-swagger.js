@@ -18,7 +18,11 @@ const swaggerOptions = {
     servers: [
       {
         url: "http://localhost:3000",
-        description: "Development server"
+        description: "üöÄ Local Development Server"
+      },
+      {
+        url: "https://clear-tax-updated-backend-nodejs.onrender.com",
+        description: "üåê Live Production Server (Render)"
       }
     ]
   },
@@ -275,9 +279,9 @@ app.get("/", (req, res) => {
     <html>
       <head><title>Clear Taxi Go API</title></head>
       <body>
-        <h1>Ì∫ñ Clear Taxi Go API</h1>
+        <h1>ÔøΩÔøΩÔøΩ Clear Taxi Go API</h1>
         <p><strong>APIs are working! Now with Swagger documentation!</strong></p>
-        <p>Ì±â <a href="/api-docs">Go to Swagger UI</a> to test all APIs interactively</p>
+        <p>ÔøΩÔøΩÔøΩ <a href="/api-docs">Go to Swagger UI</a> to test all APIs interactively</p>
         <p>Available endpoints:</p>
         <ul>
           <li><a href="/api/v1/services">GET /api/v1/services</a></li>
@@ -295,6 +299,6 @@ app.get("/health", (req, res) => {
 });
 app.listen(PORT, () => {
   console.log("‚úÖ SERVER WITH SWAGGER STARTED!");
-  console.log(`Ì≥ö Swagger Docs: http://localhost:${PORT}/api-docs`);
-  console.log(`Ìºê Homepage: http://localhost:${PORT}`);
+  console.log(`ÔøΩÔøΩÔøΩ Swagger Docs: http://localhost:${PORT}/api-docs`);
+  console.log(`ÔøΩÔøΩÔøΩ Homepage: http://localhost:${PORT}`);
 });
