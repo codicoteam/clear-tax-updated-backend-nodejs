@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: clear-taxi-go
+    name: clear-tax-updated-backend-nodejs
     env: node
     region: oregon
     plan: free
