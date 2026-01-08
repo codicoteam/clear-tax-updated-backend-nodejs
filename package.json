@@ -4,15 +4,15 @@
   "description": "Clear Taxi Go API with Swagger",
   "main": "server-with-swagger.js",
   "scripts": {
-    "start": "node server-with-swagger.js",
+    "start": "node server.js",
     "dev": "nodemon server-with-swagger.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "swagger-ui-express": "^4.6.3",
     "swagger-jsdoc": "^6.2.8",
-    "yamljs": "^0.3.0",
-    "cors": "^2.8.5"
+    "swagger-ui-express": "^4.6.3",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
